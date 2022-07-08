@@ -1,4 +1,4 @@
-Using MongoDB, Mongooes with Express
+Using MongoDB, Mongoose with Express
 
 Putting it All Together: Mongoose with Express
 
