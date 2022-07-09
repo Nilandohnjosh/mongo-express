@@ -19,18 +19,26 @@ mongoose
 
 server.set('views', path.join(__dirname, 'views'))
 server.set('view engine', 'ejs')
+server.use(express.urlencoded({ extended: true }))
 
 server.get('/products', async (req, res) => {
   const products = await Product.find({})
   res.render('products/index', { products })
 })
 
+server.get('/products/new', (req, res) => {
+  res.render('products/new')
+})
+
+server.post('/products', async (req, res) => {
+  const newProduct = new Product(req.body)
+  await newProduct.save()
+  res.redirect(`/products/${newProduct._id}`)
+})
+
 server.get('/products/:id', async (req, res) => {
   const { id } = req.params
-  const product = await Product.findById(id).catch((err) => {
-    console.log('Error finding product:', err.message)
-  })
-  console.log(product)
+  const product = await Product.findById(id)
   res.render('products/show', { product })
 })
 
