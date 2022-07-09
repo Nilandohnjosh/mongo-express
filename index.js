@@ -2,6 +2,7 @@ const express = require('express')
 const server = express()
 const path = require('path')
 const mongoose = require('mongoose')
+const methodOverride = require('method-override')
 
 const Product = require('./models/product')
 
@@ -19,7 +20,11 @@ mongoose
 
 server.set('views', path.join(__dirname, 'views'))
 server.set('view engine', 'ejs')
+
+// Middleware
+server.use(express.static(path.join(__dirname, 'public')))
 server.use(express.urlencoded({ extended: true }))
+server.use(methodOverride('_method'))
 
 server.get('/products', async (req, res) => {
   const products = await Product.find({})
@@ -40,6 +45,21 @@ server.get('/products/:id', async (req, res) => {
   const { id } = req.params
   const product = await Product.findById(id)
   res.render('products/show', { product })
+})
+
+server.get('/products/:id/edit', async (req, res) => {
+  const { id } = req.params
+  const product = await Product.findById(id)
+  res.render('products/edit', { product })
+})
+
+server.put('/products/:id', async (req, res) => {
+  const { id } = req.params
+  const product = await Product.findByIdAndUpdate(id, req.body, {
+    runValidators: true,
+    new: true,
+  })
+  res.redirect(`/products/${product._id}`)
 })
 
 server.get('/dogs', (req, res) => {
