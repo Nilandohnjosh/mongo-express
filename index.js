@@ -26,13 +26,21 @@ server.use(express.static(path.join(__dirname, 'public')))
 server.use(express.urlencoded({ extended: true }))
 server.use(methodOverride('_method'))
 
+const categories = ['fruit', 'vegetable', 'dairy']
+
 server.get('/products', async (req, res) => {
-  const products = await Product.find({})
-  res.render('products/index', { products })
+  const { category } = req.query
+  if (category) {
+    const products = await Product.find({ category })
+    res.render('products/index', { products, category })
+  } else {
+    const products = await Product.find({})
+    res.render('products/index', { products, category: 'All' })
+  }
 })
 
 server.get('/products/new', (req, res) => {
-  res.render('products/new')
+  res.render('products/new', { categories })
 })
 
 server.post('/products', async (req, res) => {
@@ -50,7 +58,7 @@ server.get('/products/:id', async (req, res) => {
 server.get('/products/:id/edit', async (req, res) => {
   const { id } = req.params
   const product = await Product.findById(id)
-  res.render('products/edit', { product })
+  res.render('products/edit', { product, categories })
 })
 
 server.put('/products/:id', async (req, res) => {
@@ -60,6 +68,12 @@ server.put('/products/:id', async (req, res) => {
     new: true,
   })
   res.redirect(`/products/${product._id}`)
+})
+
+server.delete('/products/:id', async (req, res) => {
+  const { id } = req.params
+  const deletedProduct = await Product.findByIdAndDelete(id)
+  res.redirect('/products')
 })
 
 server.get('/dogs', (req, res) => {
