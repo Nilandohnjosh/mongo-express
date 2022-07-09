@@ -1,5 +1,5 @@
 const express = require('express')
-const app = express()
+const server = express()
 const path = require('path')
 const mongoose = require('mongoose')
 
@@ -17,18 +17,27 @@ mongoose
     console.log('Error connecting to MongoDB:', err.message)
   })
 
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs')
+server.set('views', path.join(__dirname, 'views'))
+server.set('view engine', 'ejs')
 
-app.get('/products', async (req, res) => {
+server.get('/products', async (req, res) => {
   const products = await Product.find({})
   res.render('products/index', { products })
 })
 
-app.get('/dogs', (req, res) => {
+server.get('/products/:id', async (req, res) => {
+  const { id } = req.params
+  const product = await Product.findById(id).catch((err) => {
+    console.log('Error finding product:', err.message)
+  })
+  console.log(product)
+  res.render('products/show', { product })
+})
+
+server.get('/dogs', (req, res) => {
   res.send('dogs')
 })
 
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log('Server is running on port 3000')
 })
